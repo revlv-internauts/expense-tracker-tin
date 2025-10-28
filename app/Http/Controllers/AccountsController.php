@@ -9,58 +9,92 @@ use Inertia\Inertia;
 class AccountsController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display all accounts.
      */
     public function index()
     {
-        return Inertia::render('accounts/index');
+        $accounts = Accounts::latest()->get();
+
+        // Render Inertia React page
+        return Inertia::render('accounts/index', [
+            'accounts' => $accounts
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form to create a new account.
      */
     public function create()
     {
-        //
+        return Inertia::render('accounts/create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a new account.
      */
     public function store(Request $request)
     {
-        //
+          $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'type' => 'required|string|max:255', //cash,credit,loan
+        // 'amount' is optional
+    ]);
+
+    $account = Accounts::create([
+        'name' => $validated['name'],
+        'type' => $validated['type'],
+        'amount' => $validated['amount'] ?? 0, // default to 0
+    ]);
+
+    return redirect()->route('accounts.index')->with('success', 'Account created successfully!');
     }
 
     /**
-     * Display the specified resource.
+     * Show a single account.
      */
-    public function show(Accounts $accounts)
+    public function show(Accounts $account)
     {
-        //
+        return Inertia::render('Accounts/Show', [
+            'account' => $account
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show edit form.
      */
-    public function edit(Accounts $accounts)
+    public function edit(Accounts $account)
     {
-        //
+        return Inertia::render('accounts/edit', [
+            'account' => $account
+        ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update an existing account.
      */
-    public function update(Request $request, Accounts $accounts)
+    public function update(Request $request, \App\Models\Accounts $account)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'amount' => 'required|numeric',
+            'description' => 'nullable|string',
+            'date' => 'required|date',
+        ]);
+
+        $account->update($validated);
+
+        return redirect('/accounts')
+            ->with('success', 'Expense updated successfully!');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete an account.
      */
-    public function destroy(Accounts $accounts)
+    public function destroy(Accounts $account)
     {
-        //
+        $account->delete();
+
+        return redirect()->route('accounts.index')
+            ->with('success', 'Account deleted successfully!');
     }
 }

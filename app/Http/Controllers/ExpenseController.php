@@ -9,58 +9,72 @@ use Inertia\Inertia;
 class ExpenseController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of expenses.
      */
     public function index()
     {
-        return Inertia::render('expense/index');
+        $expenses = Expense::orderBy('created_at', 'desc')->get();
+
+        return Inertia::render('expenses/index', [
+            'expenses' => $expenses,
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new expense.
      */
     public function create()
     {
-        //
+        return Inertia::render('expenses/create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created expense in storage.
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'remarks' => 'nullable|string|max:255',
+            'amount' => 'required|numeric|min:0',
+        ]);
+
+        Expense::create($request->only('remarks', 'amount'));
+
+        return redirect()->route('expenses.index')->with('success', 'Expense created successfully.');
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(Expense $expense)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified expense.
      */
     public function edit(Expense $expense)
     {
-        //
+        return Inertia::render('expenses/edit', [
+            'expense' => $expense,
+        ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified expense in storage.
      */
     public function update(Request $request, Expense $expense)
     {
-        //
+        $request->validate([
+            'remarks' => 'nullable|string|max:255',
+            'amount' => 'required|numeric|min:0',
+        ]);
+
+        $expense->update($request->only('remarks', 'amount'));
+
+        return redirect()->route('expenses.index')->with('success', 'Expense updated successfully.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified expense from storage.
      */
     public function destroy(Expense $expense)
     {
-        //
+        $expense->delete();
+
+        return redirect()->route('expenses.index')->with('success', 'Expense deleted successfully.');
     }
 }

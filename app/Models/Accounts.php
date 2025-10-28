@@ -12,5 +12,6 @@ class Accounts extends Model
 
     protected $fillable = [
         'name',
+        'type',
     ];
 }

@@ -18,6 +18,7 @@ class AccountsFactory extends Factory
     {
         return [
             'name'=>fake()->name(),
+            'type'=>fake()->randomElement('cash','credit card','loan'),
         ];
     }
 }

@@ -16,6 +16,7 @@ import { Link } from '@inertiajs/react';
 import { BookOpen, LayoutGrid } from 'lucide-react';
 import AppLogo from './app-logo';
 
+
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
@@ -27,8 +28,13 @@ const mainNavItems: NavItem[] = [
 const footerNavItems: NavItem[] = [
     
     {
+        title: 'Accounts',
+        href: '/accounts',
+        icon: BookOpen,
+    },
+    {
         title: 'Expenses',
-        href: 'https://laravel.com/docs/starter-kits#react',
+        href: '/expenses',
         icon: BookOpen,
     },
 ];
