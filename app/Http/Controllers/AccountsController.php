@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Accounts;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class AccountsController extends Controller
 {
@@ -12,7 +13,7 @@ class AccountsController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('accounts/index');
     }
 
     /**

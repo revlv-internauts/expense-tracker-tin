@@ -9,4 +9,8 @@ class Expense extends Model
 {
     /** @use HasFactory<\Database\Factories\ExpenseFactory> */
     use HasFactory;
+    protected $fillable = [
+        'remarks',
+        'amount',
+    ];
 }

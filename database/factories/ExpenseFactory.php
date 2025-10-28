@@ -17,7 +17,8 @@ class ExpenseFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'amount' => fake()->numberBetween(50, 500),
+            'remarks' => fake()->optional(0.2)->colorName(),
         ];
     }
 }
