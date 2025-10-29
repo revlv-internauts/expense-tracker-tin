@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountsController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -16,6 +17,10 @@ Route::get('/', function () {
 Route::get('/accounts', [AccountsController::class, 'index'])->name('accounts.index');
 Route::get('/accounts/create', [AccountsController::class, 'create'])->name('accounts.create');
 Route::post('/accounts', [AccountsController::class, 'store'])->name('accounts.store');
+Route::get('/accounts/{account}/edit', [AccountsController::class, 'edit'])->name('accounts.edit');
+Route::put('/accounts/{account}', [AccountsController::class, 'update'])->name('accounts.update');
+Route::delete('/accounts/{account}', [AccountsController::class, 'destroy'])->name('accounts.destroy');
+
 
 //for expenses
 Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
@@ -29,6 +34,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+//for categories
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
+Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
+Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 });
 
 require __DIR__.'/settings.php';

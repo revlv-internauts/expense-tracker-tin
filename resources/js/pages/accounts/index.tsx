@@ -75,7 +75,11 @@ export default function AccountsIndex() {
                           method="delete"
                           as="button"
                           className="text-red-600 hover:text-red-500"
-                          confirm="Are you sure you want to delete this account?"
+                          onClick={(e) => {
+                            if (!confirm('Are you sure you want to delete this expense?')) {
+                              e.preventDefault();
+                            }
+                          }}
                         >
                           Delete
                         </Link>

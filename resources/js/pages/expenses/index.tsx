@@ -7,7 +7,7 @@ import { Link, usePage } from '@inertiajs/react';
 interface Expense {
   id: number;
   remarks: string | null;
-  amount: number;
+  amount: string | number; // Laravel sends decimals as strings
   created_at: string;
 }
 
@@ -43,25 +43,45 @@ export default function ExpensesIndex() {
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
             <thead className="bg-gray-50 dark:bg-gray-900/30">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Remarks</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Amount</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">Created At</th>
-                <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600 dark:text-gray-300">Actions</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">
+                  Remarks
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">
+                  Amount
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 dark:text-gray-300">
+                  Created At
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-semibold text-gray-600 dark:text-gray-300">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {expenses.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-6 text-center text-sm text-muted-foreground">
+                  <td
+                    colSpan={4}
+                    className="px-4 py-6 text-center text-sm text-muted-foreground"
+                  >
                     No expenses found.
                   </td>
                 </tr>
               ) : (
-                expenses.map(expense => (
+                expenses.map((expense) => (
                   <tr key={expense.id}>
-                    <td className="px-4 py-3 text-sm text-foreground">{expense.remarks || '-'}</td>
-                    <td className="px-4 py-3 text-sm text-foreground">${expense.amount.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{expense.created_at}</td>
+                    <td className="px-4 py-3 text-sm text-foreground">
+                      {expense.remarks || '-'}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-foreground">
+                      {Number(expense.amount).toLocaleString('en-PH', {
+                        style: 'currency',
+                        currency: 'PHP',
+                      })}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      {expense.created_at}
+                    </td>
                     <td className="px-4 py-3 text-right text-sm">
                       <div className="flex justify-end gap-3">
                         <Link
@@ -75,7 +95,11 @@ export default function ExpensesIndex() {
                           method="delete"
                           as="button"
                           className="text-red-600 hover:text-red-500"
-                          confirm="Are you sure you want to delete this expense?"
+                          onClick={(e) => {
+                            if (!confirm('Are you sure you want to delete this expense?')) {
+                              e.preventDefault();
+                            }
+                          }}
                         >
                           Delete
                         </Link>

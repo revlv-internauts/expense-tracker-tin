@@ -15,9 +15,8 @@ class AccountsController extends Controller
     {
         $accounts = Accounts::latest()->get();
 
-        // Render Inertia React page
         return Inertia::render('accounts/index', [
-            'accounts' => $accounts
+            'accounts' => $accounts,
         ]);
     }
 
@@ -34,57 +33,41 @@ class AccountsController extends Controller
      */
     public function store(Request $request)
     {
-          $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'type' => 'required|string|max:255', //cash,credit,loan
-        // 'amount' is optional
-    ]);
-
-    $account = Accounts::create([
-        'name' => $validated['name'],
-        'type' => $validated['type'],
-        'amount' => $validated['amount'] ?? 0, // default to 0
-    ]);
-
-    return redirect()->route('accounts.index')->with('success', 'Account created successfully!');
-    }
-
-    /**
-     * Show a single account.
-     */
-    public function show(Accounts $account)
-    {
-        return Inertia::render('Accounts/Show', [
-            'account' => $account
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|string|max:255', // e.g. cash, credit, loan
         ]);
+
+        Accounts::create($validated);
+
+        return redirect()->route('accounts.index')
+            ->with('success', 'Account created successfully!');
     }
 
     /**
-     * Show edit form.
+     * Show edit form for an existing account.
      */
     public function edit(Accounts $account)
     {
         return Inertia::render('accounts/edit', [
-            'account' => $account
+            'account' => $account,
         ]);
     }
 
     /**
      * Update an existing account.
      */
-    public function update(Request $request, \App\Models\Accounts $account)
+    public function update(Request $request, Accounts $account)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'amount' => 'required|numeric',
-            'description' => 'nullable|string',
-            'date' => 'required|date',
+            'type' => 'required|string|max:255',
         ]);
 
         $account->update($validated);
 
-        return redirect('/accounts')
-            ->with('success', 'Expense updated successfully!');
+        return redirect()->route('accounts.index')
+            ->with('success', 'Account updated successfully!');
     }
 
     /**

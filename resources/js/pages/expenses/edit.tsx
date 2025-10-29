@@ -1,13 +1,15 @@
-import React from 'react';
+/** biome-ignore-all lint/correctness/useUniqueElementIds: <explanation> */
+import React, { useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
-import { Link, useForm } from '@inertiajs/react';
+import { Link, useForm, usePage } from '@inertiajs/react';
 
 interface Expense {
   id: number;
   remarks: string | null;
   amount: number;
+  created_at: string;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -16,54 +18,92 @@ const breadcrumbs: BreadcrumbItem[] = [
   { title: 'Edit', href: '' },
 ];
 
-export default function ExpensesEdit({ expense }: { expense: Expense }) {
-  const { data, setData, put, processing, errors } = useForm({
-    remarks: expense.remarks || '',
+export default function ExpensesEdit() {
+  const { props } = usePage<{ expense: Expense }>();
+  const { expense } = props;
+
+  const { data, setData, put, processing, errors, reset } = useForm({
+    remarks: expense.remarks ?? '',
     amount: expense.amount.toString(),
   });
 
-  const submit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    put(`/expenses/${expense.id}`);
+    setSubmitting(true);
+    put(`/expenses/${expense.id}`, {
+      onSuccess: () => reset('remarks', 'amount'),
+      onFinish: () => setSubmitting(false),
+    });
   };
 
   return (
     <AppLayout breadcrumbs={breadcrumbs}>
-      <div className="p-4">
-        <h3 className="text-lg font-semibold mb-4">Edit Expense</h3>
-        <form onSubmit={submit} className="space-y-4 max-w-md">
+      <div className="flex items-center justify-between px-4 py-5 border-b border-gray-200 dark:border-sidebar-border">
+        <h3 className="text-lg font-semibold text-foreground">Edit Expense</h3>
+        <Link
+          href="/expenses"
+          className="rounded-md bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 shadow-xs hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200"
+        >
+          ← Back
+        </Link>
+      </div>
+
+      <div className="p-6">
+        <form onSubmit={handleSubmit} className="max-w-lg space-y-6">
+          {/* Remarks Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Remarks</label>
+            <label htmlFor="remarks" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Remarks
+            </label>
             <input
+              id="remarks"
               type="text"
               value={data.remarks}
               onChange={e => setData('remarks', e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Optional description"
+              className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
             />
-            {errors.remarks && <p className="text-red-600 text-sm mt-1">{errors.remarks}</p>}
+            {errors.remarks && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors.remarks}</p>
+            )}
           </div>
 
+          {/* Amount Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount</label>
+            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Amount <span className="text-red-500">*</span>
+            </label>
             <input
+              id="amount"
               type="number"
               step="0.01"
               value={data.amount}
               onChange={e => setData('amount', e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              placeholder="Enter amount"
+              className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
             />
-            {errors.amount && <p className="text-red-600 text-sm mt-1">{errors.amount}</p>}
+            {errors.amount && (
+              <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors.amount}</p>
+            )}
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Submit Button */}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Link
+              href="/expenses"
+              className="rounded-md bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 shadow-xs hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200"
+            >
+              Cancel
+            </Link>
             <button
               type="submit"
-              disabled={processing}
-              className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-500"
+              disabled={processing || submitting}
+              className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
             >
-              Update
+              {processing || submitting ? 'Updating...' : 'Update Expense'}
             </button>
-            <Link href="/expenses" className="text-gray-600 hover:underline">Cancel</Link>
           </div>
         </form>
       </div>

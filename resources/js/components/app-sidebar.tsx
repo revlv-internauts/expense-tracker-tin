@@ -37,6 +37,11 @@ const footerNavItems: NavItem[] = [
         href: '/expenses',
         icon: BookOpen,
     },
+    {
+        title: 'Categories',
+        href: '/categories',
+        icon: BookOpen,
+    },
 ];
 
 export function AppSidebar() {
