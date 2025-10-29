@@ -53,7 +53,7 @@ export default function CreateCategory() {
           <button
             type="submit"
             disabled={processing}
-            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500 disabled:opacity-50"
+            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-500 disabled:opacity-50 float-right"
           >
             Save Category
           </button>
