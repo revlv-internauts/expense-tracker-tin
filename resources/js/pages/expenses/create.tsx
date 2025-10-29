@@ -1,31 +1,45 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import AppLayout from '@/layouts/app-layout';
-import { dashboard } from '@/routes';
+import { Link, useForm, usePage } from '@inertiajs/react';
 import type { BreadcrumbItem } from '@/types';
-import { Link, useForm } from '@inertiajs/react';
+import { dashboard } from '@/routes';
 
-const breadcrumbs: BreadcrumbItem[] = [
-  { title: 'Dashboard', href: dashboard().url },
-  { title: 'Expenses', href: '/expenses' },
-  { title: 'Create', href: '' },
-];
+interface Account {
+  id: number;
+  name: string;
+}
 
-export default function ExpensesCreate() {
-  const { data, setData, post, processing, errors, reset } = useForm({
+interface Category {
+  id: number;
+  category: string;
+}
+
+interface PageProps {
+  accounts: Account[];
+  categories: Category[];
+  flash?: { success?: string };
+}
+
+export default function CreateExpense() {
+  const { props } = usePage<PageProps>();
+  const { accounts, categories, flash } = props;
+
+  const breadcrumbs: BreadcrumbItem[] = [
+    { title: 'Dashboard', href: dashboard().url },
+    { title: 'Expenses', href: '/expenses' },
+    { title: 'Create Expense', href: '' },
+  ];
+
+  const { data, setData, post, processing, errors } = useForm({
     remarks: '',
     amount: '',
+    account_id: '',
+    category_id: '',
   });
-
-  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
-    post('/expenses', {
-      onSuccess: () => reset(),
-      onFinish: () => setSubmitting(false),
-    });
+    post('/expenses');
   };
 
   return (
@@ -34,65 +48,107 @@ export default function ExpensesCreate() {
         <h3 className="text-lg font-semibold text-foreground">Add Expense</h3>
         <Link
           href="/expenses"
-          className="rounded-md bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 shadow-xs hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200"
+          className="rounded-md bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 shadow-xs hover:bg-gray-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400"
         >
           ← Back
         </Link>
       </div>
 
+      {flash?.success && (
+        <div className="mx-4 mt-4 rounded-md bg-green-50 p-3 text-sm text-green-700 dark:bg-green-900/30 dark:text-green-300">
+          {flash.success}
+        </div>
+      )}
+
       <div className="p-6 max-w-xl mx-auto">
-        <form onSubmit={handleSubmit} className="max-w-lg space-y-6">
-          {/* Remarks Field */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Account */}
           <div>
-            <label htmlFor="remarks" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Account
+            </label>
+            <select
+              name="account_id"
+              value={data.account_id}
+              onChange={(e) => setData('account_id', e.target.value)}
+              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-background px-3 py-2 text-sm text-foreground shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required
+            >
+              <option value="">Select an account</option>
+              {accounts.map((acc) => (
+                <option key={acc.id} value={acc.id}>
+                  {acc.name}
+                </option>
+              ))}
+            </select>
+            {errors.account_id && <p className="mt-1 text-sm text-red-600">{errors.account_id}</p>}
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Category
+            </label>
+            <select
+              name="category_id"
+              value={data.category_id}
+              onChange={(e) => setData('category_id', e.target.value)}
+              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-background px-3 py-2 text-sm text-foreground shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              required
+            >
+              <option value="">Select a category</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.category}
+                </option>
+              ))}
+            </select>
+            {errors.category_id && <p className="mt-1 text-sm text-red-600">{errors.category_id}</p>}
+          </div>
+
+          {/* Remarks */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Remarks
             </label>
             <input
-              id="remarks"
               type="text"
+              name="remarks"
               value={data.remarks}
-              onChange={e => setData('remarks', e.target.value)}
-              placeholder="Optional description"
-              className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+              onChange={(e) => setData('remarks', e.target.value)}
+              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-background px-3 py-2 text-sm text-foreground shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              placeholder="Enter remarks (optional)"
             />
-            {errors.remarks && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors.remarks}</p>
-            )}
+            {errors.remarks && <p className="mt-1 text-sm text-red-600">{errors.remarks}</p>}
           </div>
 
-          {/* Amount Field */}
+          {/* Amount */}
           <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Amount <span className="text-red-500">*</span>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Amount (₱)
             </label>
             <input
-              id="amount"
               type="number"
-              step="0.01"
+              name="amount"
               value={data.amount}
-              onChange={e => setData('amount', e.target.value)}
+              onChange={(e) => setData('amount', e.target.value)}
+              className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-background px-3 py-2 text-sm text-foreground shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
               placeholder="Enter amount"
-              className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+              step="0.01"
+              min="0"
+              required
             />
-            {errors.amount && (
-              <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors.amount}</p>
-            )}
+            {errors.amount && <p className="mt-1 text-sm text-red-600">{errors.amount}</p>}
           </div>
 
-          {/* Submit Button */}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <Link
-              href="/expenses"
-              className="rounded-md bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700 shadow-xs hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-200"
-            >
-              Cancel
-            </Link>
+          {/* Submit */}
+          <div className="flex justify-end">
             <button
               type="submit"
-              disabled={processing || submitting}
-              className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
+              disabled={processing}
+              className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 disabled:opacity-50"
             >
-              {processing || submitting ? 'Saving...' : 'Save Expense'}
+              Save Expense
             </button>
           </div>
         </form>

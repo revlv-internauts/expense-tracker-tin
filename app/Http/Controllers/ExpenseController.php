@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Accounts;
+use App\Models\Category;
 use App\Models\Expense;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -25,7 +26,10 @@ class ExpenseController extends Controller
      */
     public function create()
     {
-        return Inertia::render('expenses/create');
+        return Inertia::render('expenses/create', [
+            'accounts' => Accounts::all(),
+            'categories' => Category::all(),
+        ]);
     }
 
     /**
@@ -36,12 +40,15 @@ class ExpenseController extends Controller
         $request->validate([
             'remarks' => 'nullable|string|max:255',
             'amount' => 'required|numeric|min:0',
+            'account_id' => 'required|exists:accounts,id',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
-        Expense::create($request->only('remarks', 'amount'));
+        Expense::create($request->only('remarks', 'amount', 'account_id', 'category_id'));
 
         return redirect()->route('expenses.index')->with('success', 'Expense created successfully.');
     }
+
 
     /**
      * Show the form for editing the specified expense.

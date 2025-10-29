@@ -7,10 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class Expense extends Model
 {
-    /** @use HasFactory<\Database\Factories\ExpenseFactory> */
     use HasFactory;
+
     protected $fillable = [
         'remarks',
         'amount',
+        'account_id',
+        'category_id',
     ];
+
+    public function account()
+    {
+        return $this->belongsTo(Accounts::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }
+

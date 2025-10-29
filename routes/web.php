@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountsController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
+use App\Models\Expense;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
@@ -30,10 +31,14 @@ Route::get('/expenses/{expense}/edit', [ExpenseController::class, 'edit'])->name
 Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
 Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
+//authentication
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', function () { 
+    $expenses = Expense::with(['account', 'category'])->latest()->get();
+    return Inertia::render('dashboard', [
+        'expenses' => $expenses,
+    ]);
+})->name('dashboard');
 
 //for categories
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
