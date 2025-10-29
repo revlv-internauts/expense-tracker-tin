@@ -68,7 +68,7 @@ export default function CreateAccount() {
             >
               <option value="">Select type</option>
               <option value="cash">Cash</option>
-              <option value="credit">Credit</option>
+              <option value="credit">Credit Card</option>
               <option value="loan">Loan</option>
             </select>
             {errors.type && <p className="mt-1 text-sm text-red-600">{errors.type}</p>}
